@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title text-center mb-4">Курсы валют</h2>
+        <div class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <select id="base_currency" class="form-select">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select id="target_currency" class="form-select">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="amount" class="form-control" placeholder="Сумма" value="1">
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div id="rates_table" class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Валюта</th>
+                            <th>Курс</th>
+                            <th>Дата обновления</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rates_body">
+                        <!-- Данные будут загружены через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let token = localStorage.getItem('token');
+
+// Функция для получения курсов валют
+async function getExchangeRates(base_currency) {
+    try {
+        const response = await fetch(`/latest/${base_currency}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            updateRatesTable(data);
+        } else {
+            alert('Ошибка при получении курсов валют');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при получении данных');
+    }
+}
+
+// Функция для обновления таблицы курсов
+function updateRatesTable(data) {
+    const tbody = document.getElementById('rates_body');
+    tbody.innerHTML = '';
+    
+    for (const [currency, rate] of Object.entries(data.conversion_rates)) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${currency}</td>
+            <td>${rate.toFixed(4)}</td>
+            <td>${new Date(data.time_last_update_utc).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+// Обработчик изменения базовой валюты
+document.getElementById('base_currency').addEventListener('change', (e) => {
+    getExchangeRates(e.target.value);
+});
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    const base_currency = document.getElementById('base_currency');
+    if (base_currency) {
+        getExchangeRates(base_currency.value);
+    }
+});
+</script>
+{% endblock %}
