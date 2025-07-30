@@ -88,7 +88,7 @@ def get_current_user(
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
+    user = get_user(db, token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -136,8 +136,11 @@ async def register_user(
     return {"message": "User registered successfully"}
 
 @app.post("/token")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
-    user = authenticate_user(form_data.username, form_data.password)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = db_dependency,
+) -> dict:
+    user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
