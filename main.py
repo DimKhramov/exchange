@@ -135,11 +135,11 @@ async def register_user(
     
     return {"message": "User registered successfully"}
 
-@app.post("/token")
+@app.post("/token", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = db_dependency,
-) -> dict:
+) -> Token:
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
@@ -147,11 +147,13 @@ def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=30)
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")
 
 @app.get("/latest/{base_currency}", response_model=ExchangeRateResponse)
 async def get_latest_rates(
