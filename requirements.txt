@@ -1,6 +1,6 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-sqlalchemy==1.4.47
+fastapi==0.109.0
+uvicorn==0.27.0
+sqlalchemy==2.0.25
 python-dotenv==1.0.0
 requests==2.31.0
 xmltodict==0.14.2
@@ -10,7 +10,12 @@ Flask-Cors==3.0.10
 Flask-Login==0.6.3
 Flask-Migrate==3.1.0
 Flask-WTF==1.2.1
-pydantic==1.10.13
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+aiosqlite==0.19.0
+httpx==0.26.0
 beautifulsoup4==4.12.2
 prometheus-client==0.19.0
 jinja2==3.1.2
