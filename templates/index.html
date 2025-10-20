@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Rate API</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Exchange Rate API</h1>
+        
+        <div class="form-group">
+            <label for="api_key">API Key:</label>
+            <input type="text" id="api_key" name="api_key" required>
+        </div>
+
+        <div class="form-group">
+            <label for="base_currency">Base Currency:</label>
+            <input type="text" id="base_currency" name="base_currency" placeholder="USD">
+        </div>
+
+        <div class="form-group">
+            <label for="target_currency">Target Currency:</label>
+            <input type="text" id="target_currency" name="target_currency" placeholder="EUR">
+        </div>
+
+        <button class="btn" onclick="fetchExchangeRate()">Get Exchange Rate</button>
+
+        <div id="response" class="response-box"></div>
+    </div>
+
+    <script>
+        async function fetchExchangeRate() {
+            const apiKey = document.getElementById('api_key').value;
+            const baseCurrency = document.getElementById('base_currency').value;
+            const targetCurrency = document.getElementById('target_currency').value;
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/rates?base_currency=${baseCurrency}&target_currency=${targetCurrency}&api_key=${apiKey}`);
+                const data = await response.json();
+                
+                document.getElementById('response').innerHTML = `
+                    <h3>Exchange Rate:</h3>
+                    <p>Rate: ${data.rate}</p>
+                    <p>Date: ${data.date}</p>
+                `;
+            } catch (error) {
+                document.getElementById('response').innerHTML = `
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
